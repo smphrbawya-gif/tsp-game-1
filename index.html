@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Salesman Route | TSP Game</title>
+<style>
+:root{color-scheme:light;--bg:#eef3f6;--bg2:#f6f2ea;--card:#fff;--ink:#1f2a37;--mute:#66707f;--line:#dde3ea;--brand:#2f7f86;--accent:#d9683a;--good:#3b9a5a;--route:#2f78c4;--hint:#7e57c2;--land:#e1efd5;--river:#9fd0ea;--tree:#78b061;--tree2:#549648;--road:#4b5563;--roadline:#fde68a;--foot:#cba982;--cr:#ece6d6;--bfill:#d4dbe6;--sc-base:#cdd8a6;--sc-f1:#b7cd84;--sc-f2:#d2d88e;--sc-f3:#a6c279;--sc-f4:#c9b98a;--sc-lawn:#8ebd69;--sc-lawn2:#80b15f;--sc-t1:#4e8b3f;--sc-t2:#3e7733;--sc-water:#78bbdc;--sc-waterd:#4f97c0;--sc-bank:#d9cfa5;--sc-asph:#6a6f77;--sc-edge:#c7cacf;--sc-line:#f4f1e4;--sc-lot:#9ba1a9;--sc-rf1:#cfcac0;--sc-rf2:#ad9f90;--sc-rf3:#b98c74;--sc-track:#c4694a;--sc-pitch:#5ba24c}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#12161d;--bg2:#161b22;--card:#1c222c;--ink:#eceff6;--mute:#9aa3b8;--line:#2f3647;--brand:#4fb3b8;--accent:#f08a55;--good:#5fcf80;--route:#74b6f0;--hint:#b39ddb;--land:#243a2c;--river:#2c5d80;--tree:#3f7a45;--tree2:#2f6137;--road:#0f1115;--roadline:#d6b84a;--foot:#8a6f4d;--cr:#2d3b31;--bfill:#4b5568;--sc-base:#27331f;--sc-f1:#314226;--sc-f2:#394829;--sc-f3:#2b3b22;--sc-f4:#3d3a26;--sc-lawn:#2c4a2e;--sc-lawn2:#264027;--sc-t1:#2c5b31;--sc-t2:#224b28;--sc-water:#21506f;--sc-waterd:#183a54;--sc-bank:#4a4630;--sc-asph:#2a2d32;--sc-edge:#4b4f56;--sc-line:#9b9a88;--sc-lot:#3a3e45;--sc-rf1:#5b5953;--sc-rf2:#4a433b;--sc-rf3:#5a4034;--sc-track:#7a3f2c;--sc-pitch:#2f6a34}:root[data-theme="dark"] button.primary{color:#0c1418}
+:root[data-theme="dark"] .tip{background:#4a4318;color:#f5ecb0}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--bg),var(--bg2)) fixed;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+main{max-width:900px;margin:0 auto;padding:16px}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border-radius:16px;color:#fff;background:linear-gradient(120deg,#2f6f8f,#3f9a94);box-shadow:0 6px 18px rgba(47,111,143,.25)}
+.hero h1{font-size:1.8rem;margin:0;line-height:1.25}
+.hero .sub{color:rgba(255,255,255,.9);margin:4px 0 0}
+.logo{width:84px;height:84px;border-radius:50%;background:#fff;flex:none;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.tabs{margin:16px 0 4px}
+.tabs button{border-radius:999px;padding:7px 18px;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--brand);border-radius:14px;padding:18px;margin:16px 0;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+h2{font-size:1.2rem;margin:0 0 8px;padding-left:10px;border-left:4px solid var(--brand)}
+section .card:nth-child(4n+2){border-top-color:var(--accent)}section .card:nth-child(4n+2) h2{border-left-color:var(--accent)}
+section .card:nth-child(4n+3){border-top-color:var(--route)}section .card:nth-child(4n+3) h2{border-left-color:var(--route)}
+section .card:nth-child(4n+4){border-top-color:var(--good)}section .card:nth-child(4n+4) h2{border-left-color:var(--good)}
+.sub{color:var(--mute)}
+.hl{font-weight:700}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:10px}
+.stats .pill{display:flex;flex-direction:column;align-items:center;padding:6px;border-radius:12px;border:1px solid var(--line);font-size:.8rem;color:var(--mute);line-height:1.3}
+.stats .pill:nth-child(1){background:rgba(47,120,196,.12)}
+.stats .pill:nth-child(2){background:rgba(59,154,90,.12)}
+.stats .pill:nth-child(3){background:rgba(234,179,8,.15)}
+.stats .pill:nth-child(4){background:rgba(217,104,58,.12)}
+.stats .pill b{font-size:1.4rem;color:var(--ink);line-height:1.2}
+.prog{display:flex;gap:6px;margin:0 0 10px}
+.seg{flex:1;display:flex;flex-direction:column;align-items:center;border:1px solid var(--line);border-radius:8px;padding:2px 0;background:var(--bg);font-weight:700;font-size:.85rem;line-height:1.25}
+.seg small{color:var(--accent);font-size:.7rem;min-height:1em}
+.seg.done{border-color:var(--good);background:rgba(59,154,90,.12)}
+.seg.cur{background:var(--brand);border-color:var(--brand);color:#fff}
+.seg.cur small{color:#fff}
+button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:7px 14px;cursor:pointer;transition:transform .1s,box-shadow .15s,border-color .15s;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.15);border-color:var(--brand)}
+button:active:not(:disabled){transform:none}
+button:focus-visible{outline:3px solid var(--route);outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+button.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.tabs #setBtn{margin-left:auto}
+.tip{display:inline-block;background:#fff4b8;color:#3f3500;padding:6px 12px;border-radius:6px;font-size:.88rem;transform:rotate(-.6deg);box-shadow:0 2px 5px rgba(0,0,0,.15);margin:0 0 10px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.overlay[hidden]{display:none}
+.panel{background:var(--card);border-radius:14px;padding:18px;max-width:440px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.row{margin:14px 0;display:flex;flex-direction:column;gap:6px}
+.row div{display:flex;flex-wrap:wrap;gap:6px}
+#greedy{border-color:var(--hint);color:var(--hint)}
+.city{cursor:pointer}
+.hit{fill:transparent}
+.sh{fill:rgba(0,0,0,.32)}
+.bld{transition:transform .15s;transform-box:fill-box;transform-origin:50% 100%}
+.city:hover .bld{transform:scale(1.12)}
+.city .bld *{stroke:rgba(20,28,40,.55);stroke-width:.8;stroke-linejoin:round}
+.city .bld .f{fill:#ece8e0}.city .bld .s{fill:#cfc9bc}.city .bld .r{fill:#7b8594}.city .bld .rt{fill:#a9b1bc}.city .bld .d{fill:#7a5a3c}
+.city .bld .w{fill:#7aa0bd;stroke-width:.4}.city .bld .sw .w{fill:#55748f}
+.city.vis .bld .f{fill:#cfe2f5}.city.vis .bld .s{fill:#a3c4e6}.city.vis .bld .r{fill:#2f78c4}.city.vis .bld .rt{fill:#5d97d4}
+.city.start .bld .f{fill:#f6e3d3}.city.start .bld .s{fill:#e5c2a8}.city.start .bld .r{fill:#c4552b}.city.start .bld .rt{fill:#e08a5e}
+:root[data-theme="dark"] .city .bld .f{fill:#9a968e}:root[data-theme="dark"] .city .bld .s{fill:#77736b}:root[data-theme="dark"] .city .bld .r{fill:#4c5563}:root[data-theme="dark"] .city .bld .rt{fill:#6a7380}
+:root[data-theme="dark"] .city .bld .w{fill:#4f7090}:root[data-theme="dark"] .city .bld .sw .w{fill:#3a566f}
+:root[data-theme="dark"] .city.vis .bld .f{fill:#86addb}:root[data-theme="dark"] .city.vis .bld .s{fill:#6590bd}:root[data-theme="dark"] .city.vis .bld .r{fill:#2d5f96}:root[data-theme="dark"] .city.vis .bld .rt{fill:#4a80b8}
+:root[data-theme="dark"] .city.start .bld .f{fill:#d3ad92}:root[data-theme="dark"] .city.start .bld .s{fill:#ae8468}:root[data-theme="dark"] .city.start .bld .r{fill:#a8431f}:root[data-theme="dark"] .city.start .bld .rt{fill:#c9693f}
+.pad{fill:rgba(255,255,255,.22);stroke:rgba(255,255,255,.4);stroke-width:1}
+.nb{fill:var(--ink);stroke:var(--card);stroke-width:2}
+.ob{fill:var(--accent);stroke:var(--card);stroke-width:2}
+.nbt{fill:var(--card);font-size:11px;font-weight:700;text-anchor:middle;pointer-events:none}
+#msg{position:relative;min-height:3.4em;margin:14px 0 0;padding:10px 14px;background:var(--bg);border-radius:12px;border-left:4px solid var(--brand)}
+#msg::before{content:"";position:absolute;top:-8px;left:22px;border:8px solid transparent;border-top:0;border-bottom-color:var(--bg)}
+#msg.result{border-left-color:var(--good)}
+.stars{font-size:1.5rem;letter-spacing:3px;color:var(--accent)}
+details{border-top:1px solid var(--line);padding:8px 0;margin-top:10px}
+summary{cursor:pointer;font-weight:700}
+code{background:var(--bg);padding:0 6px;border-radius:4px}
+table{border-collapse:collapse;font-size:.88rem;margin:8px 0}
+td,th{border:1px solid var(--line);padding:3px 9px;text-align:center}
+th{background:rgba(47,127,134,.12)}
+.note{color:var(--mute);font-size:.9rem}
+td.st{color:var(--accent)}
+td.go{cursor:pointer;background:var(--accent);color:var(--card);font-weight:700}
+td.go:hover{opacity:.8}
+td.used,th.vis{background:var(--route);color:var(--card)}
+th.cur{background:var(--accent);color:var(--card)}
+td sup{font-size:.7em}
+#tstat{margin:6px 0;font-weight:700}
+html[lang=th] .en,html[lang=en] .th{display:none}
+footer{text-align:center;color:var(--mute);font-size:.9rem;margin-top:24px;padding-top:12px;border-top:1px solid var(--line)}
+@media (max-width:520px){.logo{width:56px;height:56px}.hero h1{font-size:1.4rem}.hero{padding:14px}}
+#map{position:relative;z-index:0;height:460px;border-radius:12px;border:3px solid var(--card);outline:1px solid var(--line);overflow:hidden;background:var(--bg)}
+.lf-hu{stroke:var(--card);stroke-width:11;stroke-linecap:round;opacity:.9;fill:none}
+.lf-hn{stroke:var(--hint);stroke-width:5;stroke-linecap:round;fill:none}
+#msv{display:block;width:100%;height:100%;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#fg,#mover{pointer-events:none}
+.maplabel{position:absolute;top:8px;left:8px;z-index:2;padding:4px 10px;border-radius:8px;background:var(--card);color:var(--ink);border:1px solid var(--line);font-size:.8rem;font-weight:700;opacity:.92;pointer-events:none}
+#fg .hit,#fg .bld{pointer-events:all}
+#scene .sb{fill:var(--sc-base)}#scene .f1{fill:var(--sc-f1)}#scene .f2{fill:var(--sc-f2)}#scene .f3{fill:var(--sc-f3)}#scene .f4{fill:var(--sc-f4)}
+#scene .lw{fill:var(--sc-lawn)}#scene .lw2{fill:var(--sc-lawn2);opacity:.55}
+#scene .fence{fill:none;stroke:rgba(90,90,80,.55);stroke-width:1.4;stroke-dasharray:7 6}
+#scene .rvb,#scene .rvw{fill:none;stroke-linecap:round}#scene .rvb{stroke:var(--sc-bank)}#scene .rvw{stroke:var(--sc-water)}
+#scene .pb{fill:var(--sc-bank)}#scene .pw{fill:var(--sc-water)}#scene .pw2{fill:rgba(255,255,255,.18)}
+#scene .ed,#scene .as,#scene .cl{fill:none;stroke-linecap:round;stroke-linejoin:round}
+#scene .ed{stroke:var(--sc-edge)}#scene .as{stroke:var(--sc-asph)}#scene .cl{stroke:var(--sc-line);stroke-width:1.3;stroke-dasharray:9 12;stroke-linecap:butt}
+#scene .lt{fill:var(--sc-lot);stroke:var(--sc-edge);stroke-width:1}
+#scene .tk{fill:var(--sc-track)}#scene .pt{fill:var(--sc-pitch)}#scene .pl{fill:none;stroke:rgba(255,255,255,.8);stroke-width:1.3}
+#scene .rf1{fill:var(--sc-rf1)}#scene .rf2{fill:var(--sc-rf2)}#scene .rf3{fill:var(--sc-rf3)}#scene .rg{stroke:rgba(0,0,0,.25);stroke-width:1}
+#scene .shd{fill:rgba(0,0,0,.28)}#scene .t1{fill:var(--sc-t1)}#scene .t2{fill:var(--sc-t2)}
+.rt-c{stroke:#fff;stroke-width:11;stroke-linecap:round;opacity:.9}
+.rt{stroke:var(--route);stroke-width:5;stroke-linecap:round}
+.elr{fill:var(--card);stroke:var(--road);stroke-width:1}
+.elt{fill:var(--ink);font:700 11px system-ui,sans-serif;text-anchor:middle}
+.ha{fill:var(--hint)}
+.hb{fill:var(--hint);stroke:var(--card);stroke-width:2}
+.hbt{fill:var(--card);font:700 10px system-ui,sans-serif;text-anchor:middle}
+#person{transform:scale(1.4)}
+#mvo.moving #person{animation:bob .25s infinite alternate}
+@keyframes bob{from{transform:translateY(0) scale(1.4)}to{transform:translateY(-2px) scale(1.4)}}
+@media (max-width:520px){#map{height:360px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.dg{width:100%;max-width:300px;display:block;margin:10px auto}.dg .n{fill:var(--card);stroke:var(--ink);stroke-width:2}.dg .h{fill:var(--accent)}.dg text{fill:var(--ink);font:700 12px system-ui,sans-serif;text-anchor:middle}.dg .w{fill:var(--mute);font-size:11px}.dg .e{stroke:var(--route);stroke-width:3.5;fill:none;stroke-linejoin:round}.dg .bad{stroke:var(--accent)}.dg .g{stroke:var(--mute);stroke-width:1.5;stroke-dasharray:4 4}.pair{display:flex;gap:8px;max-width:420px;margin:0 auto}.pair .dg{margin:6px 0}figure{margin:12px 0}figcaption{text-align:center}ul.tp{padding-left:20px;margin:6px 0}
+
+.hero{position:relative;overflow:hidden;padding:22px 24px;border-radius:20px;background:radial-gradient(circle at 88% 15%,rgba(255,255,255,.24),transparent 42%),linear-gradient(120deg,#2f6f8f,#3f9a94 62%,#4fb38a);box-shadow:0 10px 26px rgba(47,111,143,.3)}
+.hero::before{content:"";position:absolute;right:-50px;bottom:-70px;width:220px;height:220px;border-radius:50%;border:3px dashed rgba(255,255,255,.28)}
+.hero>*{position:relative}.hero h1{letter-spacing:.2px;text-shadow:0 2px 6px rgba(0,0,0,.18)}
+.hero .logo{background:none;box-shadow:none;padding:0;border-radius:0;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}
+:root[data-theme="dark"] .hero{background:radial-gradient(circle at 88% 15%,rgba(255,255,255,.1),transparent 42%),linear-gradient(120deg,#1f4a63,#25605f 62%,#2b6b55)}
+.card{border-radius:18px;box-shadow:0 6px 18px rgba(20,40,60,.08)}
+.tabs button.primary{box-shadow:0 3px 10px rgba(47,127,134,.35)}
+.stats .pill{border-radius:14px;padding:8px 6px}.stats .pill::before{font-size:1.15rem;line-height:1.2}
+.stats .pill:nth-child(1)::before{content:"🏁"}.stats .pill:nth-child(2)::before{content:"📍"}.stats .pill:nth-child(3)::before{content:"📏"}.stats .pill:nth-child(4)::before{content:"🔀"}
+.seg{border-radius:10px;padding:3px 0}.seg.cur{box-shadow:0 3px 8px rgba(47,127,134,.4)}
+#map{border-radius:16px;box-shadow:0 8px 22px rgba(0,0,0,.18)}
+button{border-radius:12px}button.primary{box-shadow:0 2px 6px rgba(47,127,134,.3)}
+#msg{border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+footer{padding-bottom:12px}
+</style>
+<script>(function(){var t='';try{t=localStorage.getItem('tsp-theme')||''}catch(e){}if(!t)t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>
+</head>
+<body>
+<main>
+<header class="hero">
+  <div>
+    <h1 data-t="title"></h1>
+    <p class="sub" data-t="sub"></p>
+  </div>
+  <svg class="logo" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="40" fill="rgba(255,255,255,.16)"/><polygon points="22,58 28,28 56,20 66,50 42,66" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><g fill="#fff"><circle cx="28" cy="28" r="4.5"/><circle cx="56" cy="20" r="4.5"/><circle cx="66" cy="50" r="4.5"/><circle cx="42" cy="66" r="4.5"/></g><circle cx="22" cy="58" r="7" fill="#ff9a62" stroke="#fff" stroke-width="2.5"/></svg>
+</header>
+
+<div class="bar tabs">
+  <button class="primary" data-tab="play" data-t="tabPlay"></button>
+  <button data-tab="learn" data-t="tabLearn"></button>
+  <button id="setBtn" data-t="settings"></button>
+</div>
+
+<section id="play">
+<div class="card">
+  <p class="en">You are a salesman who must visit <b>every place exactly once</b> and then return home (the orange house). Click the buildings in the order you choose and try to find the <span class="hl">shortest total route</span>. This is the Travelling Salesman Problem (TSP).</p>
+  <p class="th">คุณเป็นพนักงานขายที่ต้อง<b>ไปให้ครบทุกที่ ที่เพียงครั้งเดียว</b>แล้วกลับบ้าน (บ้านสีส้ม) คลิกอาคารตามลำดับที่เลือก แล้วหา<span class="hl">เส้นทางรวมที่สั้นที่สุด</span> นี่คือปัญหา Travelling Salesman Problem (TSP)</p>
+</div>
+
+<div class="card" id="setup">
+  <h2 data-t="diffH"></h2>
+  <p class="note" data-t="diffP"></p>
+  <div class="bar"><button data-df="easy" data-t="easy"></button><button data-df="normal" data-t="normal"></button><button data-df="hard" data-t="hard"></button></div>
+  <button class="primary" id="go" data-t="startBtn"></button>
+</div>
+
+<div class="card" id="game" hidden>
+  <div class="stats">
+    <span class="pill"><span data-t="lvl"></span> <b id="lvl">1</b></span>
+    <span class="pill"><span data-t="cities"></span> <b id="cnt">5</b></span>
+    <span class="pill"><span data-t="dist"></span> <b id="len">0</b></span>
+    <span class="pill"><span data-t="routes"></span> <b id="routes">12</b></span>
+  </div>
+  <div id="prog" class="prog"></div>
+  
+  <div id="map"></div>
+  <div class="bar" style="margin-top:12px">
+    <button id="undo" data-t="undo"></button>
+    <button id="reset" data-t="reset"></button>
+    <button id="greedy" data-t="greedy"></button>
+    <button id="newmap" data-t="newmap"></button>
+    <button id="restart" data-t="restart"></button>
+    <button id="chg" data-t="chg"></button>
+    <button id="next" class="primary" hidden></button>
+  </div>
+  <div id="msg"></div>
+  <details><summary data-t="tbl"></summary><div class="en"><p><b>What is this?</b> A table of the distance between every pair of cities. The top row and left column are city numbers, the same as on the map.</p>
+  <p><b>How to use it:</b></p>
+  <ol><li>The orange row and column header is the city you are at now.</li><li>Click an orange cell in that row to travel to that city. It works the same as clicking the city on the map.</li><li>Blue cells are legs you have already travelled, with the order number in small text. Blue headers are cities you have already visited.</li><li>The line above the table shows where you are and the total distance so far.</li></ol>
+  <p class="note">A "-" means the same city. The table is symmetric: row 1, column 3 is the same distance as row 3, column 1.</p></div>
+  <div class="th"><p><b>ตารางนี้คืออะไร?</b> ตารางแสดงระยะทางระหว่างเมืองทุกคู่ ตัวเลขแถวบนสุดและคอลัมน์ซ้ายสุดคือหมายเลขเมือง ตรงกับตัวเลขบนแผนที่</p>
+  <p><b>วิธีใช้:</b></p>
+  <ol><li>หัวแถวและหัวคอลัมน์สีส้มคือเมืองที่คุณอยู่ตอนนี้</li><li>คลิกช่องสีส้มในแถวนั้นเพื่อเดินทางไปเมืองนั้น ใช้ได้เหมือนกับการคลิกเมืองบนแผนที่</li><li>ช่องสีฟ้าคือช่วงที่เดินทางไปแล้ว มีเลขลำดับตัวเล็ก ๆ กำกับ หัวตารางสีฟ้าคือเมืองที่เยี่ยมแล้ว</li><li>ข้อความเหนือตารางบอกว่าคุณอยู่ที่ไหนและระยะทางรวมจนถึงตอนนี้</li></ol>
+  <p class="note">เครื่องหมาย "-" หมายถึงเมืองเดียวกัน ตารางเป็นสมมาตร แถว 1 คอลัมน์ 3 มีระยะทางเท่ากับแถว 3 คอลัมน์ 1</p></div>
+  <div id="tstat"></div>
+  <div id="tbl" style="overflow-x:auto"></div></details>
+</div>
+</section>
+
+<section id="learn" hidden>
+<div class="card">
+  <h2><span class="en">So what is the TSP?</span><span class="th">TSP คืออะไร?</span></h2>
+  <p class="en ">Say you are a salesman. You have to visit several customers in one day, stop at each place once, and end up back home. The question is simple: which order gives you the least travelling? That puzzle is the <span class="hl">Travelling Salesman Problem</span>, or TSP.</p>
+  <p class="th ">สมมติว่าคุณเป็นพนักงานขาย วันนี้ต้องไปหาลูกค้าหลายที่ แต่ละที่แวะแค่ครั้งเดียว แล้วต้องกลับมาถึงบ้านด้วย คำถามคือไปลำดับไหนถึงจะเดินทางน้อยที่สุด นี่แหละคือ <span class="hl">Travelling Salesman Problem</span> หรือ TSP</p>
+  <figure><svg class="dg" viewBox="0 0 240 150" role="img"><polygon class="e" points="40,105 80,35 150,28 205,70 180,122 100,125"/><circle class="n h" cx="40" cy="105" r="12"/><text x="40" y="109">1</text><circle class="n" cx="80" cy="35" r="12"/><text x="80" y="39">2</text><circle class="n" cx="150" cy="28" r="12"/><text x="150" y="32">3</text><circle class="n" cx="205" cy="70" r="12"/><text x="205" y="74">4</text><circle class="n" cx="180" cy="122" r="12"/><text x="180" y="126">5</text><circle class="n" cx="100" cy="125" r="12"/><text x="100" y="129">6</text></svg><figcaption class="note en">A round trip through 6 places. The orange dot is home, where you start and finish.</figcaption><figcaption class="note th">ตัวอย่างเส้นทางไปกลับ 6 ที่ จุดสีส้มคือบ้าน เป็นทั้งจุดเริ่มและจุดจบ</figcaption></figure>
+  <p class="en ">It sounds easy, but computer scientists have been stuck on it for a long time. Add a few more places and the number of possible routes explodes. Meanwhile the same problem shows up everywhere: delivery trucks, garbage trucks, even machines that drill circuit boards.</p>
+  <p class="th ">ฟังดูง่าย แต่นักคอมพิวเตอร์ปวดหัวกับมันมานานมาก พอที่ให้ไปเพิ่มขึ้นนิดเดียว จำนวนเส้นทางก็พุ่งขึ้นเร็วมาก ทั้งที่ปัญหาแบบนี้เจอได้ทุกที่ ทั้งรถส่งของ รถเก็บขยะ หรือเครื่องเจาะแผงวงจร</p>
+
+</div>
+<div class="card">
+  <h2><span class="en">Why is it so hard?</span><span class="th">ทำไมถึงยาก?</span></h2>
+  <p class="en ">Because the number of routes grows crazy fast. With n places there are about <code>(n-1)!/2</code> different round trips.</p>
+  <p class="th ">เพราะจำนวนเส้นทางโตเร็วเกินคาด ถ้ามี n ที่ จะมีเส้นทางไปกลับที่ไม่ซ้ำกันประมาณ <code>(n-1)!/2</code> แบบ</p>
+  <div style="overflow-x:auto"><table><tr><th><span class="en">Places</span><span class="th">จำนวนที่</span></th><th><span class="en">Routes</span><span class="th">จำนวนเส้นทาง</span></th></tr><tr><td>4</td><td>3</td></tr><tr><td>5</td><td>12</td></tr><tr><td>8</td><td>2,520</td></tr><tr><td>10</td><td>181,440</td></tr><tr><td>15</td><td>≈ 4.3 × 10¹⁰</td></tr><tr><td>20</td><td>≈ 6 × 10¹⁶</td></tr></table></div>
+  <p class="en note">Even if a computer could check a billion routes per second, 20 places would still take about two years. That is why TSP is called <b>NP-hard</b>: nobody knows a shortcut that always finds the best answer.</p>
+  <p class="th note">ต่อให้คอมตรวจได้พันล้านเส้นทางต่อวินาที แค่ 20 ที่ก็ยังใช้เวลาเกือบสองปี เลยจัดให้ TSP เป็นปัญหา <b>NP-hard</b> คือยังไม่มีใครรู้ทางลัดที่ได้คำตอบดีที่สุดเสมอ</p>
+
+</div>
+<div class="card">
+  <h2><span class="en">A tiny example</span><span class="th">ลองกับ 4 ที่ดูก่อน</span></h2>
+  <p class="en ">Four places A, B, C, D. The numbers on the lines are distances. Starting from A there are only 3 routes to compare:</p>
+  <p class="th ">มี 4 ที่ คือ A B C D ตัวเลขบนเส้นคือระยะทาง เริ่มจาก A จะมีให้เลือกแค่ 3 แบบ:</p>
+  <figure><svg class="dg" viewBox="0 0 240 150" role="img"><line class="g" x1="40" y1="30" x2="200" y2="120"/><line class="g" x1="200" y1="30" x2="40" y2="120"/><line class="e" x1="40" y1="30" x2="200" y2="30"/><line class="e" x1="200" y1="30" x2="200" y2="120"/><line class="e" x1="200" y1="120" x2="40" y2="120"/><line class="e" x1="40" y1="120" x2="40" y2="30"/><text class="w" x="120" y="22">10</text><text class="w" x="222" y="78">25</text><text class="w" x="120" y="142">30</text><text class="w" x="18" y="78">15</text><text class="w" x="88" y="66">20</text><text class="w" x="152" y="66">35</text><circle class="n h" cx="40" cy="30" r="12"/><text x="40" y="34">A</text><circle class="n" cx="200" cy="30" r="12"/><text x="200" y="34">B</text><circle class="n" cx="40" cy="120" r="12"/><text x="40" y="124">C</text><circle class="n" cx="200" cy="120" r="12"/><text x="200" y="124">D</text></svg><figcaption class="note en">The thick blue route is the shortest one (80 in total).</figcaption><figcaption class="note th">เส้นสีฟ้าหนาคือเส้นทางที่สั้นที่สุด (รวม 80)</figcaption></figure>
+  <table><tr><th><span class="en">Route</span><span class="th">เส้นทาง</span></th><th><span class="en">Total</span><span class="th">รวม</span></th></tr><tr><td>A → B → C → D → A</td><td>10+35+30+20 = 95</td></tr><tr><td>A → B → D → C → A</td><td>10+25+30+15 = 80 ✓</td></tr><tr><td>A → C → B → D → A</td><td>15+35+25+20 = 95</td></tr></table>
+  <p class="en ">If you always walk to the nearest unvisited place you get A → B → D → C → A = 80, which happens to be the best. That is luck, though. With more places this trick starts failing. Try the hint button in the game and see if you can beat it.</p>
+  <p class="th ">ถ้าไปที่ใกล้สุดทุกครั้ง จะได้ A → B → D → C → A = 80 ซึ่งดีที่สุดพอดี แต่นั่นแค่โชคดี พอที่เยอะขึ้นวิธีนี้ก็เริ่มพลาด ลองกดปุ่มคำใบ้ในเกมแล้วดูว่าชนะมันได้ไหม</p>
+
+</div>
+<div class="card">
+  <h2><span class="en">Why crossing lines are bad</span><span class="th">ทำไมเส้นที่ตัดกันถึงไม่ดี</span></h2>
+  <figure><div class="pair"><svg class="dg" viewBox="0 0 150 130" role="img"><line class="e bad" x1="30" y1="100" x2="120" y2="30"/><line class="e bad" x1="120" y1="30" x2="30" y2="30"/><line class="e bad" x1="30" y1="30" x2="120" y2="100"/><line class="e bad" x1="120" y1="100" x2="30" y2="100"/><circle class="n" cx="30" cy="100" r="12"/><text x="30" y="104">1</text><circle class="n" cx="120" cy="30" r="12"/><text x="120" y="34">2</text><circle class="n" cx="30" cy="30" r="12"/><text x="30" y="34">3</text><circle class="n" cx="120" cy="100" r="12"/><text x="120" y="104">4</text></svg><svg class="dg" viewBox="0 0 150 130" role="img"><line class="e" x1="30" y1="100" x2="30" y2="30"/><line class="e" x1="30" y1="30" x2="120" y2="30"/><line class="e" x1="120" y1="30" x2="120" y2="100"/><line class="e" x1="120" y1="100" x2="30" y2="100"/><circle class="n" cx="30" cy="100" r="12"/><text x="30" y="104">1</text><circle class="n" cx="120" cy="30" r="12"/><text x="120" y="34">2</text><circle class="n" cx="30" cy="30" r="12"/><text x="30" y="34">3</text><circle class="n" cx="120" cy="100" r="12"/><text x="120" y="104">4</text></svg></div><figcaption class="note en">Left: the route crosses itself. Right: swap two stops and the crossing is gone.</figcaption><figcaption class="note th">ซ้าย: เส้นทางตัดกันเป็นกากบาท ขวา: สลับสองจุดแล้วไม่ตัดกันแล้ว</figcaption></figure>
+  <p class="en ">Look at the left picture. The route makes an X. If you swap the order of two stops, you get the picture on the right, and the total distance always gets shorter. So the best route never crosses itself. Programmers use the same idea in a method called <b>2-opt</b>: find a crossing, fix it, repeat. You can do the same while playing.</p>
+  <p class="th ">ดูรูปซ้าย เส้นทางตัดกันเป็นรูปกากบาท ถ้าสลับลำดับสองจุดจะได้เหมือนรูปขวา และระยะรวมจะสั้นลงเสมอ เพราะงั้นเส้นทางที่สั้นที่สุดจะไม่มีวันตัดกันเอง โปรแกรมเมอร์ก็ใช้ไอเดียนี้เหมือนกัน เรียกว่า <b>2-opt</b> คือหาเส้นที่ตัดกัน แก้ แล้วทำซ้ำ ตอนเล่นเกมคุณก็ทำแบบเดียวกันได้เลย</p>
+
+</div>
+<div class="card">
+  <h2><span class="en">How do people solve it?</span><span class="th">แล้วเขาแก้กันยังไง?</span></h2>
+  <div style="overflow-x:auto" class="en"><table><tr><th>Method</th><th>Idea</th><th>Result</th></tr><tr><td>Brute force</td><td>Try every route</td><td>Perfect, but too slow past ~12 places</td></tr><tr><td>Nearest neighbour</td><td>Always go to the closest unvisited place</td><td>Fast, often 15 to 25% longer</td></tr><tr><td>2-opt</td><td>Remove crossings, repeat</td><td>Fast and much better</td></tr><tr><td>Genetic / ant colony</td><td>Evolve many routes over generations</td><td>Very good on big maps</td></tr><tr><td>Branch and bound</td><td>Drop routes that are already too long</td><td>Exact, handles bigger maps than brute force</td></tr></table></div>
+  <div style="overflow-x:auto" class="th"><table><tr><th>วิธี</th><th>ไอเดีย</th><th>ผลลัพธ์</th></tr><tr><td>Brute force</td><td>ลองทุกเส้นทาง</td><td>ได้ที่ดีที่สุด แต่ช้ามากเมื่อเกิน ~12 ที่</td></tr><tr><td>Nearest neighbour</td><td>ไปที่ใกล้สุดที่ยังไม่เคยไป</td><td>เร็ว แต่มักยาวกว่า 15 ถึง 25%</td></tr><tr><td>2-opt</td><td>แก้เส้นที่ตัดกัน ทำซ้ำ</td><td>เร็วและดีกว่ามาก</td></tr><tr><td>Genetic / ant colony</td><td>ให้เส้นทางวิวัฒนาการหลายรุ่น</td><td>ดีมากกับแผนที่ใหญ่</td></tr><tr><td>Branch and bound</td><td>ตัดเส้นทางที่ยาวเกินไปทิ้งตั้งแต่ต้น</td><td>ได้ที่ดีที่สุด รับแผนที่ใหญ่ได้กว่า brute force</td></tr></table></div>
+  <p class="en ">In real life, with hundreds of stops, people rarely hunt for the perfect answer. They use a <b>heuristic</b>: a fast method that gives a good-enough route.</p>
+  <p class="th ">ในโลกจริงที่มีจุดแวะเป็นร้อย ๆ ที่ ไม่ค่อยมีใครหาคำตอบที่ดีที่สุดเป๊ะ ๆ กัน แต่จะใช้ <b>heuristic</b> คือวิธีที่เร็วและได้เส้นทางที่ดีพอ</p>
+
+</div>
+<div class="card">
+  <h2><span class="en">Tips for the game</span><span class="th">เทคนิคตอนเล่นเกม</span></h2>
+  <ul class="tp en"><li>Look at the whole map first and picture the route as one loop around it.</li><li>Finish one side of the map before crossing to the other. Zigzagging back and forth is expensive.</li><li>If two lines cross, undo and swap the order.</li><li>Press the hint, then try to beat it.</li></ul>
+  <ul class="tp th"><li>ดูภาพรวมทั้งแผนที่ก่อน แล้วลองนึกภาพเส้นทางเป็นวงรอบเดียว</li><li>เก็บฝั่งหนึ่งให้เสร็จก่อนค่อยข้ามไปอีกฝั่ง การวิ่งไปมาข้ามฝั่งเปลืองระยะมาก</li><li>ถ้าเส้นตัดกัน ให้ย้อนกลับแล้วสลับลำดับ</li><li>ลองกดคำใบ้ดู แล้วพยายามเอาชนะมัน</li></ul>
+
+</div>
+<div class="card">
+  <h2><span class="en">Where is it used?</span><span class="th">เอาไปใช้ที่ไหนบ้าง</span></h2>
+  <p class="en ">Delivery trucks, school buses, garbage collection, drilling circuit boards, scheduling telescopes and laser engraving.<br><b>Optimal:</b> the shortest possible route.<br><b>NP-hard:</b> no known fast method that always finds it.<br><b>Edge:</b> the line between two places.</p>
+  <p class="th ">รถส่งของ รถรับส่งนักเรียน รถเก็บขยะ เครื่องเจาะแผงวงจร การจัดคิวกล้องโทรทรรศน์ และเครื่องแกะสลักเลเซอร์<br><b>Optimal:</b> เส้นทางที่สั้นที่สุดเท่าที่เป็นไปได้<br><b>NP-hard:</b> ยังไม่มีวิธีเร็ว ๆ ที่หาคำตอบที่ดีที่สุดได้เสมอ<br><b>Edge:</b> เส้นเชื่อมระหว่างสองที่</p>
+  <button class="primary" data-tab="play" data-t="goPlay"></button>
+</div>
+</section>
+
+<section id="summary" hidden>
+<div class="card">
+  <h2 data-t="sumH"></h2>
+  <div id="sumBody"></div>
+  <button class="primary" id="sumAgain" data-t="again"></button>
+</div>
+</section>
+
+<footer><p data-t="credit"></p></footer>
+<div id="settings" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-modal="true">
+    <h2 data-t="setH"></h2>
+    <div class="row"><b data-t="setLang"></b><div><button data-l="th">ไทย</button><button data-l="en">English</button></div></div>
+    <div class="row"><b data-t="setTheme"></b><div><button data-th="light" data-t="light"></button><button data-th="dark" data-t="dark"></button></div></div>
+    <button class="primary" id="setClose" data-t="close"></button>
+  </div>
+</div>
+</main>
+
+<script>(function(){
+var I={
+en:{tspNote:'Calculated with TSP',pt:'Stop',diffH:'Choose a difficulty',diffP:'Harder levels use bigger distance numbers.',diff:'Difficulty',easy:'Easy',normal:'Normal',hard:'Hard',startBtn:'Start game',chg:'Change difficulty',settings:'Settings',setH:'Settings',setLang:'Language',setTheme:'Theme',light:'Light',dark:'Dark',close:'Close',tipL:'Tip:',tip0:'Lines that cross each other usually mean you can do better.',tip1:'Peek at the distance table before you commit to a long leg.',tip2:'Going to the nearest place every time is not always the winner.',tip3:'Stuck? Press Undo and try a different order.',tip4:'Try the greedy hint, then see if you can beat it.',title:'Salesman Route',sub:'A little game to help you understand the Travelling Salesman Problem.',greedyOff:'Hide the hint',walk:'on foot',drive:'by car',tabPlay:'Play',tabLearn:'Learn about TSP',lvl:'Level',cities:'Places',dist:'Your distance',routes:'Possible routes',undo:'Undo last stop',reset:'Start this map over',greedy:'Show me a hint (greedy)',newmap:'Pick new places',restart:'Start again from level 1',tbl:'Distance table (every pair of cities)',goPlay:'Go play',l1h:'So, what is the TSP?',l2h:'Why is it so hard?',l3h:'Let us try a small one',l4h:'How do people solve it?',l5h:'Where is it used? (and some words to know)',todo:'TODO: add more levels',credit:'Made by: No. 147, 148, 433 · Year 1, Computer Engineering · Srinakharinwirot University',
+sumH:'How did you do?',sumTxt:'You collected {0} out of {1} stars.',stars:'Stars',bestc:'Best distance',seeSum:'See how I did',sr1:'Amazing! You really know your routes.',sr2:'Nice work! A bit more practice and you will get 3 stars everywhere.',sr3:'Good effort! Try some levels again to collect more stars.',here:'You are at {0} · distance so far: {1}',fin:'Route complete. Total distance: {1}',path:'Route:',start:'Pick the first building you want to visit. Click it on the map or in the table.',leg:'Leg {0}: {1} → {2}, {3} units ({6}). {4} of {5} places visited.',cleared:'Fresh start! Pick your first stop.',home:'🏠 Home',
+gm:'Here is what the greedy method would do (purple, numbered): {4}. Each step just heads for the nearest place not visited yet. That gives <b>{0}</b>, which is {1}% longer than the {2} ({3}). Think you can do better?',exact:'best possible',found:'best found',
+p:'Wow, that is the shortest route. Nicely done!',g:'Really good! Just a tiny bit longer than the best one.',n:'Not bad! Look for lines that cross each other and try to untangle them.',res:'You travelled <b>{0}</b> units. {1}: <b>{2}</b> ({3}% longer than that).',next:'On to the next level →',again:'Play again'},
+th:{tspNote:'ใช้การคำนวนแบบ TSP',pt:'จุด',diffH:'เลือกระดับความยาก',diffP:'ยิ่งยาก ตัวเลขระยะทางยิ่งมาก',diff:'ระดับความยาก',easy:'ง่าย',normal:'ปกติ',hard:'ยาก',startBtn:'เริ่มเกม',chg:'เปลี่ยนระดับความยาก',settings:'ตั้งค่า',setH:'ตั้งค่า',setLang:'ภาษา',setTheme:'ธีม',light:'สว่าง',dark:'มืด',close:'ปิด',tipL:'เคล็ดลับ:',tip0:'เส้นที่ตัดกันมักเป็นสัญญาณว่ายังปรับให้ดีขึ้นได้',tip1:'ลองดูตารางระยะทางก่อนตัดสินใจไปช่วงไกล ๆ',tip2:'ไปที่ใกล้ที่สุดทุกครั้ง ไม่ได้ดีที่สุดเสมอไปนะ',tip3:'ติดตรงไหนก็กดย้อนกลับ แล้วลองสลับลำดับดู',tip4:'ลองกดคำใบ้วิธีโลภ แล้วดูว่าชนะมันได้ไหม',title:'เส้นทางพนักงานขาย',sub:'เกมเล็ก ๆ ที่ช่วยให้เข้าใจปัญหา Travelling Salesman Problem',greedyOff:'ซ่อนคำใบ้',walk:'เดินเท้า',drive:'ไปรถยนต์',tabPlay:'เล่นเกม',tabLearn:'เรียนรู้เรื่อง TSP',lvl:'ด่าน',cities:'จำนวนสถานที่',dist:'ระยะทางของคุณ',routes:'จำนวนเส้นทางที่เป็นไปได้',undo:'ย้อนกลับ 1 จุด',reset:'เริ่มแผนที่นี้ใหม่',greedy:'ขอคำใบ้ (วิธีโลภ)',newmap:'สุ่มสถานที่ใหม่',restart:'เริ่มใหม่ตั้งแต่ด่าน 1',tbl:'ตารางระยะทาง (ทุกคู่เมือง)',goPlay:'ไปเล่นเกม',l1h:'TSP คืออะไรกันนะ?',l2h:'ทำไมถึงยากนัก?',l3h:'ลองดูตัวอย่างเล็ก ๆ',l4h:'แล้วเขาแก้กันยังไง?',l5h:'เอาไปใช้ที่ไหนบ้าง (พร้อมศัพท์ที่ควรรู้)',todo:'TODO: เพิ่มด่านอีก',credit:'จัดทำโดย: เลขที่ 147, 148, 433 · ชั้นปีที่ 1 สาขาวิศวกรรมคอมพิวเตอร์ · มหาวิทยาลัยศรีนครินทรวิโรฒ',
+sumH:'ผลงานของคุณ',sumTxt:'คุณเก็บได้ {0} ดาว จากทั้งหมด {1} ดาว',stars:'ดาว',bestc:'ระยะทางที่ดีที่สุด',seeSum:'ดูผลของฉัน',sr1:'สุดยอดมาก! คุณวางเส้นทางเก่งสุด ๆ',sr2:'ทำได้ดีเลย! ฝึกอีกนิดก็ได้ 3 ดาวทุกด่านแล้ว',sr3:'สู้ ๆ นะ ลองเล่นด่านเดิมซ้ำเพื่อเก็บดาวเพิ่มดู',here:'คุณอยู่ที่ {0} · ระยะทางรวมจนถึงตอนนี้: {1}',fin:'จบเส้นทางแล้ว ระยะทางรวม: {1}',path:'เส้นทาง:',start:'เลือกอาคารแรกที่อยากไปได้เลย คลิกบนแผนที่หรือในตารางก็ได้',leg:'ช่วงที่ {0}: {1} → {2} ระยะ {3} หน่วย ({6}) ไปแล้ว {4} จาก {5} ที่',cleared:'เริ่มใหม่แล้ว เลือกจุดแรกได้เลย',home:'🏠 บ้าน',
+gm:'นี่คือเส้นทางของวิธีโลภ (สีม่วง มีเลขลำดับ): {4} แต่ละขั้นแค่ไปที่ที่ใกล้ที่สุดซึ่งยังไม่เคยไป ได้ระยะ <b>{0}</b> ยาวกว่า{2} ({3}) อยู่ {1}% คุณทำได้ดีกว่านี้ไหม?',exact:'เส้นทางที่ดีที่สุด',found:'เส้นทางที่ดีที่สุดที่หาได้',
+p:'เก่งมาก! นี่คือเส้นทางที่สั้นที่สุดเลย',g:'ดีมากเลย ยาวกว่าเส้นทางที่ดีที่สุดนิดเดียวเอง',n:'ใช้ได้เลย ลองมองหาเส้นที่ตัดกัน แล้วลองสลับลำดับดูนะ',res:'คุณเดินทางรวม <b>{0}</b> หน่วย {1}: <b>{2}</b> (ยาวกว่า {3}%)',next:'ไปด่านต่อไปกันเลย →',again:'เล่นอีกรอบ'}};
+var lang='th';try{lang=localStorage.getItem('tsp-lang')||'th'}catch(e){}
+if(!I[lang])lang='th';
+function t(k){var s=I[lang][k];for(var i=1;i<arguments.length;i++)s=s.replace('{'+(i-1)+'}',arguments[i]);return s}
+var WALK=400,levels=[2,3,4,5,6,7,8,9],level=0,cities=[],route=[],best=0,done=false,hint=null,scores=[],tipN=0,snap=false,af=0,
+    view={tx:0,ty:0,sc:.3,W:0,H:0},moverPos=null,moverCur={x:0,y:0},msgFn=function(){return ''};
+var msg=document.getElementById('msg'),nextB=document.getElementById('next');
+var LAT0=14.1115,LNG0=100.986,MY=110600,MX=107960;
+var LOTS=[[-120,60],[330,-460],[-300,-300],[-215,720],[470,-120],[40,-440]];
+function gen(n){var pts=[],md=320,tr=0;
+  while(pts.length<n){tr++;var x=40+(Math.random()*2-1)*700,y=(Math.random()*2-1)*980;
+    if(lawnR(x,y)>.78||Math.hypot((x-170)/165,(y-230)/120)<1||Math.hypot((x-610)/195,(y+170)/135)<1)continue;
+    var ok=LOTS.every(function(l){return Math.hypot(l[0]-x,l[1]-y)>65})&&pts.every(function(p){return Math.hypot(p.x-x,p.y-y)>=md});
+    if(!ok){if(tr>500){md*=.9;tr=0}continue}
+    pts.push({x:x,y:y,lat:LAT0-y/MY,lng:LNG0+x/MX,k:pts.length})}
+  return pts}
+var SCL={easy:170,normal:17,hard:1.7},diff='normal';try{diff=localStorage.getItem('tsp-diff')||'normal'}catch(e){}if(!SCL[diff])diff='normal';
+function markDiff(){document.querySelectorAll('[data-df]').forEach(function(b){b.classList.toggle('on',b.dataset.df===diff)})}
+function nm(c){return t('pt')+' '+(cities.indexOf(c)+1)}
+function setMsg(fn,cls){msgFn=fn;msg.className=cls||'';msg.innerHTML=fn()}
+function dm(a,b){var p=Math.PI/180,dl=(b.lat-a.lat)*p,dn=(b.lng-a.lng)*p,x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dn/2)*Math.sin(dn/2);return 12742000*Math.asin(Math.sqrt(x))}
+function d(a,b){return Math.max(1,Math.round(dm(a,b)/SCL[diff]))}
+function total(r){var s=0;for(var i=0;i<r.length;i++)s+=d(cities[r[i]],cities[r[(i+1)%r.length]]);return s}
+function fact(n){var f=1;for(var i=2;i<=n;i++)f*=i;return f}
+function greedy(){var r=[0],left=[];for(var i=1;i<cities.length;i++)left.push(i);
+  while(left.length){var c=r[r.length-1],bi=0;for(var j=1;j<left.length;j++)if(d(cities[c],cities[left[j]])<d(cities[c],cities[left[bi]]))bi=j;r.push(left.splice(bi,1)[0])}
+  return r}
+function solve(){var n=cities.length,b=Infinity,rest=[];for(var i=1;i<n;i++)rest.push(i);
+  (function perm(a,k){if(k===a.length){var t0=total([0].concat(a));if(t0<b)b=t0;return}
+    for(var i=k;i<a.length;i++){var x=a[k];a[k]=a[i];a[i]=x;perm(a,k+1);x=a[k];a[k]=a[i];a[i]=x}})(rest,0);
+  return b}
+
+/* ---------- offline map: everything is drawn here, no internet needed ---------- */
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function f1(v){return v.toFixed(1)}
+function cr(p,closed){var n=p.length,s='M'+f1(p[0][0])+' '+f1(p[0][1]),e=n-(closed?0:1);
+  for(var i=0;i<e;i++){var a=closed?p[(i-1+n)%n]:p[Math.max(i-1,0)],b=p[i],c=p[(i+1)%n],d2=closed?p[(i+2)%n]:p[Math.min(i+2,n-1)];
+    s+='C'+f1(b[0]+(c[0]-a[0])/6)+' '+f1(b[1]+(c[1]-a[1])/6)+' '+f1(c[0]-(d2[0]-b[0])/6)+' '+f1(c[1]-(d2[1]-b[1])/6)+' '+f1(c[0])+' '+f1(c[1])}
+  return s+(closed?'Z':'')}
+function sample(p,step){var out=[],n=p.length;
+  for(var i=0;i<n-1;i++){var a=p[Math.max(i-1,0)],b=p[i],c=p[i+1],d2=p[Math.min(i+2,n-1)],
+      len=Math.hypot(c[0]-b[0],c[1]-b[1]),k=Math.max(2,Math.ceil(len/step)),
+      b1=[b[0]+(c[0]-a[0])/6,b[1]+(c[1]-a[1])/6],b2=[c[0]-(d2[0]-b[0])/6,c[1]-(d2[1]-b[1])/6];
+    for(var j=0;j<k;j++){var u=j/k,m=1-u;
+      out.push([m*m*m*b[0]+3*m*m*u*b1[0]+3*m*u*u*b2[0]+u*u*u*c[0],m*m*m*b[1]+3*m*m*u*b1[1]+3*m*u*u*b2[1]+u*u*u*c[1]])}}
+  out.push(p[n-1].slice());
+  out.forEach(function(q,i){var a=out[Math.max(i-1,0)],b=out[Math.min(i+1,out.length-1)];q[2]=Math.atan2(b[1]-a[1],b[0]-a[0])});
+  return out}
+function lawnR(x,y){var u=(x-40)/780,v=y/1080,th=Math.atan2(v,u);return Math.hypot(u,v)/(1+.07*Math.sin(3*th+1)+.05*Math.sin(5*th+2))}
+function buildScene(L0){
+  var R=rng(7919),h='',i,j;
+  var roads=[
+   {w:22,m:1,hw:1,p:[[-2400,1065],[-1300,1010],[-440,1020],[400,1060],[1300,1010],[2500,1065]]},
+   {w:16,m:1,p:[[-440,1020],[-420,880],[-405,775],[-340,640],[-250,500],[-150,330],[-60,120],[-40,-120],[-10,-260],[110,-330],[230,-380],[330,-560],[380,-700],[385,-900]]},
+   {w:10,p:[[-40,-120],[-130,-260],[-200,-400],[-225,-530],[-216,-553]]},
+   {w:9,p:[[-200,-400],[-290,-430],[-378,-442]]},
+   {w:10,p:[[-60,120],[130,80],[320,30],[486,0],[640,-30]]},
+   {w:9,p:[[110,-330],[180,-320],[238,-299]]},
+   {w:9,p:[[-60,120],[-250,60],[-420,-100],[-470,-300],[-378,-442]]},
+   {w:9,p:[[238,-299],[330,-250],[420,-120],[486,0]]}];
+  var river=[[1020,-2000],[960,-1300],[1040,-700],[980,-100],[1050,500],[990,1100],[1060,1800]],rs=sample(river,20);
+  var grid={},CS=50;
+  function addS(x,y,w){var k=Math.floor(x/CS)+','+Math.floor(y/CS);(grid[k]||(grid[k]=[])).push([x,y,w])}
+  roads.forEach(function(r){r.s=sample(r.p,10);r.s.forEach(function(q){addS(q[0],q[1],r.w)})});
+  function roadClear(x,y){var cx=Math.floor(x/CS),cy=Math.floor(y/CS),best=1e9;
+    for(var a=-1;a<=1;a++)for(var b=-1;b<=1;b++){var l=grid[(cx+a)+','+(cy+b)];if(l)for(var k=0;k<l.length;k++){var v=Math.hypot(l[k][0]-x,l[k][1]-y)-l[k][2]/2;if(v<best)best=v}}
+    return best}
+  function riverClear(x,y){var best=1e9;for(var k=0;k<rs.length;k++){var v=Math.hypot(rs[k][0]-x,rs[k][1]-y)-35;if(v<best)best=v}return best}
+  function nodeD(x,y){var best=1e9;L0.forEach(function(c){var v=Math.hypot(c.x-x,c.y-y);if(v<best)best=v});return best}
+  var lots=[];
+  function blocked(x,y,pad){if(Math.pow((x-170)/(130+pad),2)+Math.pow((y-230)/(85+pad),2)<1)return true;
+    if(Math.pow((x-610)/(150+pad),2)+Math.pow((y+170)/(100+pad),2)<1)return true;
+    for(var k=0;k<lots.length;k++)if(Math.abs(x-lots[k][0])<lots[k][2]/2+pad&&Math.abs(y-lots[k][1])<lots[k][3]/2+pad)return true;
+    return false}
+  /* driveways from every building to the nearest road */
+  var drives=[];
+  L0.forEach(function(c){var bd=1e9,bq=null;roads.forEach(function(r){r.s.forEach(function(q){var v=Math.hypot(q[0]-c.x,q[1]-c.y);if(v<bd){bd=v;bq=q}})});
+    if(bd>6){drives.push([[c.x,c.y],[bq[0],bq[1]]]);var k=Math.ceil(bd/8);for(j=0;j<=k;j++)addS(c.x+(bq[0]-c.x)*j/k,c.y+(bq[1]-c.y)*j/k,6)}});
+  /* 1. ground and farmland outside the campus */
+  h+='<rect class="sb" x="-3200" y="-2400" width="6600" height="5200"/>';
+  for(var gx=-3000;gx<3300;gx+=230)for(var gy=-2300;gy<2600;gy+=185){
+    var cx=gx+107,cy=gy+92;if(lawnR(cx,cy)<1.12)continue;
+    h+='<rect class="f'+(1+Math.floor(R()*4))+'" x="'+(gx+5)+'" y="'+(gy+5)+'" width="'+(206+Math.floor(R()*14))+'" height="'+(162+Math.floor(R()*12))+'"/>'}
+  /* 2. river */
+  h+='<path class="rvb" style="stroke-width:84" d="'+cr(river)+'"/><path class="rvw" style="stroke-width:66" d="'+cr(river)+'"/>';
+  /* 3. campus lawn */
+  var lp=[];for(i=0;i<64;i++){var th=i/64*Math.PI*2,rr=1+.07*Math.sin(3*th+1)+.05*Math.sin(5*th+2);lp.push([40+780*rr*Math.cos(th),1080*rr*Math.sin(th)])}
+  h+='<path class="lw" d="'+cr(lp,true)+'"/>';
+  for(i=0;i<30;i++){var px,py;do{px=40+(R()*2-1)*760;py=(R()*2-1)*1060}while(lawnR(px,py)>.92);
+    h+='<ellipse class="lw2" cx="'+f1(px)+'" cy="'+f1(py)+'" rx="'+f1(60+R()*120)+'" ry="'+f1(40+R()*70)+'"/>'}
+  h+='<path class="fence" d="'+cr(lp,true)+'"/>';
+  /* 4. pond, sports ground, car parks */
+  h+='<ellipse class="pb" cx="170" cy="230" rx="130" ry="85"/><ellipse class="pw" cx="170" cy="230" rx="118" ry="74"/><ellipse class="pw2" cx="140" cy="212" rx="60" ry="22"/>';
+  h+='<ellipse class="tk" cx="610" cy="-170" rx="118" ry="72"/><ellipse class="pt" cx="610" cy="-170" rx="92" ry="48"/><rect class="pl" x="540" y="-200" width="140" height="60"/><line class="pl" x1="610" y1="-200" x2="610" y2="-140"/><ellipse class="pl" cx="610" cy="-170" rx="92" ry="48"/>';
+  [[-120,60,44,24],[330,-460,46,26],[-300,-300,40,24],[-215,720,50,26],[470,-120,40,22],[40,-440,44,24]].forEach(function(l){lots.push(l);
+    h+='<rect class="lt" x="'+(l[0]-l[2]/2)+'" y="'+(l[1]-l[3]/2)+'" width="'+l[2]+'" height="'+l[3]+'"/>';
+    for(var k=1;k<6;k++)h+='<line class="pl" style="stroke-width:.8" x1="'+(l[0]-l[2]/2+k*l[2]/6)+'" y1="'+(l[1]-l[3]/2+2)+'" x2="'+(l[0]-l[2]/2+k*l[2]/6)+'" y2="'+(l[1]+l[3]/2-2)+'"/>'});
+  /* 5. roads: edges, asphalt, centre lines, driveways */
+  roads.forEach(function(r){h+='<path class="ed" style="stroke-width:'+(r.w+4)+'" d="'+cr(r.p)+'"/>'});
+  drives.forEach(function(d2){h+='<path class="ed" style="stroke-width:10" d="M'+f1(d2[0][0])+' '+f1(d2[0][1])+'L'+f1(d2[1][0])+' '+f1(d2[1][1])+'"/>'});
+  roads.forEach(function(r){h+='<path class="as" style="stroke-width:'+r.w+'" d="'+cr(r.p)+'"/>'});
+  drives.forEach(function(d2){h+='<path class="as" style="stroke-width:6" d="M'+f1(d2[0][0])+' '+f1(d2[0][1])+'L'+f1(d2[1][0])+' '+f1(d2[1][1])+'"/>'});
+  roads.forEach(function(r){if(r.m)h+='<path class="cl" d="'+cr(r.p)+'"/>'});
+  /* 6. background rooftops along the roads (flat, muted, not clickable) */
+  var roofs=[],tries=0;
+  while(roofs.length<46&&tries++<4000){var r=roads[1+Math.floor(R()*(roads.length-1))],q=r.s[Math.floor(R()*r.s.length)],sd=R()<.5?-1:1,off=r.w/2+18+R()*16,
+      x=q[0]-Math.sin(q[2])*off*sd,y=q[1]+Math.cos(q[2])*off*sd;
+    if(nodeD(x,y)<90||blocked(x,y,22)||roadClear(x,y)<18||lawnR(x,y)>.95)continue;
+    var bad=false;for(j=0;j<roofs.length;j++)if(Math.hypot(roofs[j][0]-x,roofs[j][1]-y)<48){bad=true;break}if(bad)continue;
+    roofs.push([x,y]);var w=16+R()*20,hh=11+R()*10,ang=q[2]*180/Math.PI;
+    h+='<g transform="translate('+f1(x)+' '+f1(y)+') rotate('+f1(ang)+')"><rect x="'+f1(-w/2+3)+'" y="'+f1(-hh/2+3)+'" width="'+f1(w)+'" height="'+f1(hh)+'" class="shd"/><rect class="rf'+(1+Math.floor(R()*3))+' rg" x="'+f1(-w/2)+'" y="'+f1(-hh/2)+'" width="'+f1(w)+'" height="'+f1(hh)+'"/><line class="rg" x1="'+f1(-w/2)+'" y1="0" x2="'+f1(w/2)+'" y2="0"/></g>'}
+  /* 7. trees */
+  var n=0;
+  function tree(x,y,rad){h+='<circle class="shd" cx="'+f1(x+rad*.3)+'" cy="'+f1(y+rad*.35)+'" r="'+f1(rad)+'"/><circle class="'+(R()<.5?'t1':'t2')+'" cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(rad)+'"/>';n++}
+  roads.forEach(function(r,ri){for(var k=0;k<r.s.length;k+=4){var q=r.s[k];[-1,1].forEach(function(sd){if(R()<.25)return;
+    var off=r.w/2+9+R()*8,x=q[0]-Math.sin(q[2])*off*sd,y=q[1]+Math.cos(q[2])*off*sd;
+    if(nodeD(x,y)<58||blocked(x,y,6)||roadClear(x,y)<6||riverClear(x,y)<10)return;tree(x,y,4+R()*2.8)})}});
+  var cl=[];for(i=0;i<46;i++){var cx2,cy2;do{cx2=40+(R()*2-1)*760;cy2=(R()*2-1)*1060}while(lawnR(cx2,cy2)>.9);cl.push([cx2,cy2])}
+  for(i=0,j=0;i<2600&&j<430;i++){var x=40+(R()*2-1)*790,y=(R()*2-1)*1090;if(lawnR(x,y)>.97)continue;
+    var dm=1e9;cl.forEach(function(c){var v=Math.hypot(c[0]-x,c[1]-y);if(v<dm)dm=v});
+    if(R()>(dm<90?.9:.1))continue;if(nodeD(x,y)<62||blocked(x,y,12)||roadClear(x,y)<10)continue;tree(x,y,4.5+R()*3.8);j++}
+  for(i=0,j=0;i<3000&&j<340;i++){var x=(R()*2-1)*2800,y=(R()*2-1)*1800;if(lawnR(x,y)<1.04)continue;if(roadClear(x,y)<14||riverClear(x,y)<22)continue;
+    if(R()>.3)continue;tree(x,y,5+R()*4);j++}
+  return h}
+var MOVER='<g id="person"><circle cx="0" cy="-9" r="3.6" fill="#f1c6a0" stroke="#222" stroke-width="1"/><rect x="-3.4" y="-5" width="6.8" height="9" rx="2.2" fill="#2b6cb0" stroke="#222" stroke-width="1"/><g stroke="#222" stroke-width="2" stroke-linecap="round"><line x1="-1.6" y1="4" x2="-3" y2="10"/><line x1="1.6" y1="4" x2="3" y2="10"/><line x1="-3.4" y1="-3" x2="-6" y2="3"/><line x1="3.4" y1="-3" x2="6" y2="3"/></g></g><g id="car" style="display:none"><rect x="-16" y="-3" width="32" height="10" rx="3" fill="#d9683a" stroke="#222" stroke-width="1.2"/><path d="M-9 -3 L-5 -9 H4 L9 -3z" fill="#e58a5e" stroke="#222" stroke-width="1.2"/><path d="M-7 -3.5 L-4.4 -8 H-2 V-3.5z M-1.2 -3.5 V-8 H3.3 L6.3 -3.5z" fill="#cfe8ff"/><circle cx="-9" cy="7" r="3.3" fill="#222"/><circle cx="9" cy="7" r="3.3" fill="#222"/></g>';
+function initMap(){document.getElementById('map').innerHTML='<div class="maplabel" data-t="tspNote"></div><svg id="msv" width="100%" height="100%"><g id="scene"></g><g id="fg"></g><g id="mover"><g id="mvo"><g id="trf">'+MOVER+'</g></g></g></svg>'}
+function fit(){var box=document.getElementById('map'),W=box.clientWidth,H=box.clientHeight;if(!W||!H||!cities.length)return false;
+  document.getElementById('msv').setAttribute('viewBox','0 0 '+W+' '+H);
+  var xs=cities.map(function(c){return c.x}),ys=cities.map(function(c){return c.y}),
+      x0=Math.min.apply(null,xs),x1=Math.max.apply(null,xs),y0=Math.min.apply(null,ys),y1=Math.max.apply(null,ys),
+      sc=Math.min((W-130)/Math.max(x1-x0,60),(H-140)/Math.max(y1-y0,60),.9);
+  view.W=W;view.H=H;view.sc=sc;view.tx=W/2-(x0+x1)/2*sc;view.ty=H/2+8-(y0+y1)/2*sc;
+  document.getElementById('scene').setAttribute('transform','translate('+view.tx.toFixed(2)+' '+view.ty.toFixed(2)+') scale('+sc.toFixed(5)+')');
+  return true}
+function P(c){return [view.tx+c.x*view.sc,view.ty+c.y*view.sc]}
+function setMode(md){var p=document.getElementById('person'),c=document.getElementById('car');if(!p)return;p.style.display=md==='walk'?'':'none';c.style.display=md==='walk'?'none':''}
+function flip(s){var e=document.getElementById('trf');if(e)e.style.transform=s<0?'scale(-1,1)':'scale(1,1)'}
+function putMover(x,y){var g=document.getElementById('mover');if(g)g.setAttribute('transform','translate('+(view.tx+x*view.sc+26).toFixed(1)+' '+(view.ty+y*view.sc+18).toFixed(1)+')')}
+function placeMover(){if(!document.getElementById('mover'))return;var c=cities[done?0:route[route.length-1]];
+  if(snap||!moverPos){cancelAnimationFrame(af);moverPos={x:c.x,y:c.y,lat:c.lat,lng:c.lng};moverCur={x:c.x,y:c.y};putMover(c.x,c.y);setMode('walk');flip(1);snap=false;return}
+  var f=moverPos;if(f.lat===c.lat&&f.lng===c.lng){putMover(moverCur.x,moverCur.y);return}
+  setMode(dm(f,c)<WALK?'walk':'drive');if(c.x!==f.x)flip(c.x<f.x?-1:1);
+  var mo=document.getElementById('mvo');if(mo)mo.classList.add('moving');
+  var to={x:c.x,y:c.y},from={x:moverCur.x,y:moverCur.y},t0=performance.now();cancelAnimationFrame(af);
+  (function step(now){var k=Math.min(1,(now-t0)/(matchMedia('(prefers-reduced-motion: reduce)').matches?1:700)),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    moverCur={x:from.x+(to.x-from.x)*e,y:from.y+(to.y-from.y)*e};putMover(moverCur.x,moverCur.y);
+    if(k<1)af=requestAnimationFrame(step);else if(mo)mo.classList.remove('moving')})(t0);
+  moverPos={x:c.x,y:c.y,lat:c.lat,lng:c.lng}}
+function wins(x0,y0,cols,rows,dx,dy,w,h){var s='';for(var r=0;r<rows;r++)for(var q=0;q<cols;q++)s+='<rect class="w" x="'+(x0+q*dx)+'" y="'+(y0+r*dy)+'" width="'+w+'" height="'+h+'"/>';return s}
+function cityG(c,i,n,cls){var k=c.k,b;
+  if(k===0){b='<rect class="f" x="-14" y="-2" width="20" height="16"/><polygon class="f" points="-14,-2 6,-2 -4,-14"/><polygon class="s" points="6,-2 13,-6 13,10 6,14"/><polygon class="r" points="-4,-14 6,-2 13,-6 3,-18"/>'
+    +'<rect class="d" x="-10" y="5" width="5" height="9"/><rect class="w" x="-2" y="3" width="5" height="4.5"/><g class="sw" transform="translate(6,-2) skewY(-32)"><rect class="w" x="2.5" y="4" width="3" height="4.5"/></g>'}
+  else if(k%2===1){b='<rect class="f" x="-14" y="-14" width="18" height="28"/><polygon class="s" points="4,-14 12,-19 12,9 4,14"/><polygon class="r" points="-14,-14 4,-14 12,-19 -6,-19"/><rect class="rt" x="-6" y="-18" width="5" height="3"/>'
+    +wins(-11.5,-11,3,4,5.5,5,3.2,3.4)+'<rect class="d" x="-7" y="8.5" width="5" height="5.5"/><g class="sw" transform="translate(4,-14) skewY(-32)">'+wins(1.4,2.5,2,4,3.4,5.5,2.2,3.4)+'</g>'}
+  else{b='<rect class="f" x="-18" y="-5" width="24" height="19"/><polygon class="s" points="6,-5 14,-10 14,9 6,14"/><polygon class="r" points="-18,-5 6,-5 14,-10 -10,-10"/><rect class="rt" x="-6" y="-9" width="6" height="2.5"/>'
+    +wins(-15,-2,4,2,5.6,5.5,3.6,3.4)+'<rect class="d" x="-3.5" y="8.5" width="5" height="5.5"/><g class="sw" transform="translate(6,-5) skewY(-32)">'+wins(1.4,2.5,2,3,3.4,5.5,2.2,3.4)+'</g>'}
+  return '<g class="'+cls+'" data-i="'+i+'"><circle class="hit" cx="0" cy="-8" r="34"/><ellipse class="pad" cx="0" cy="14" rx="27" ry="9"/><ellipse class="sh" cx="6" cy="15" rx="20" ry="5"/><g class="bld">'+b+'</g>'
+    +'<circle class="nb" cx="-12" cy="-32" r="10"/><text class="nbt" x="-12" y="-28">'+(i+1)+'</text>'
+    +'</g>'}
+function legs(cb){for(var i=0;i<route.length-(done?0:1);i++)cb(cities[route[i]],cities[route[(i+1)%route.length]])}
+function ln(a,b,c){var p=P(a),q=P(b);return '<line class="'+c+'" x1="'+f1(p[0])+'" y1="'+f1(p[1])+'" x2="'+f1(q[0])+'" y2="'+f1(q[1])+'"/>'}
+function hintStr(){var n=hint.length,h='',pairs=[];
+  for(var i=0;i<n;i++)pairs.push([cities[hint[i]],cities[hint[(i+1)%n]]]);
+  pairs.forEach(function(p){h+=ln(p[0],p[1],'lf-hu')});
+  pairs.forEach(function(p){h+=ln(p[0],p[1],'lf-hn')});
+  pairs.forEach(function(p,i){var a=P(p[0]),b=P(p[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI;
+    h+='<polygon class="ha" points="-5.5,-6 5.5,0 -5.5,6" transform="translate('+f1(a[0]+(b[0]-a[0])*.72)+' '+f1(a[1]+(b[1]-a[1])*.72)+') rotate('+f1(ang)+')"/>';
+    h+='<g transform="translate('+f1(a[0]+(b[0]-a[0])*.3)+' '+f1(a[1]+(b[1]-a[1])*.3)+')"><circle class="hb" r="9"/><text class="hbt" y="3.5">'+(i+1)+'</text></g>'});
+  return h}
+function render(){
+  var fg=document.getElementById('fg');if(!fg)return;if(!view.W&&!fit())return;
+  var h='';
+  if(route.length>1){legs(function(a,b){h+=ln(a,b,'rt-c')});legs(function(a,b){h+=ln(a,b,'rt')})}
+  if(hint)h+=hintStr();
+  var lastL=null;legs(function(a,b){lastL=[a,b]});if(lastL)(function(a,b){var p=P(a),q=P(b),tx=Math.round(d(a,b))+'',w=tx.length*6.6+12;
+    h+='<g transform="translate('+f1((p[0]+q[0])/2)+' '+f1((p[1]+q[1])/2)+')"><rect class="elr" x="'+f1(-w/2)+'" y="-9" width="'+f1(w)+'" height="18" rx="6"/><text class="elt" y="4">'+tx+'</text></g>'})(lastL[0],lastL[1]);
+  cities.map(function(c,i){return i}).sort(function(a,b){return cities[a].y-cities[b].y}).forEach(function(i){
+    var c=cities[i],p=P(c),n=route.indexOf(i);
+    h+='<g transform="translate('+f1(p[0])+' '+f1(p[1])+')">'+cityG(c,i,n,'city'+(i===0?' start':n>-1?' vis':''))+'</g>'});
+  fg.innerHTML=h;placeMover();
+  ui()}
+
+/* ---------- side panels ---------- */
+function ui(){var len=0;for(var i=0;i<route.length-1;i++)len+=d(cities[route[i]],cities[route[i+1]]);
+  if(done)len+=d(cities[route[route.length-1]],cities[route[0]]);
+  document.getElementById('len').textContent=Math.round(len);
+  table();prog();
+  document.getElementById('greedy').textContent=t(hint?'greedyOff':'greedy');
+  document.getElementById('undo').disabled=document.getElementById('reset').disabled=route.length<=1}
+function stats(){document.getElementById('lvl').textContent=level+1;document.getElementById('cnt').textContent=cities.length;
+  var p=Math.max(1,fact(cities.length-1)/2);document.getElementById('routes').textContent=p>1e9?p.toExponential(1):p.toLocaleString()}
+function table(){
+  var cur=route[route.length-1],used={},len=0,i;
+  for(i=0;i<route.length;i++){var x=route[i],y=route[i+1];if(i===route.length-1){if(!done)break;y=route[0]}
+    used[x+'-'+y]=used[y+'-'+x]=i+1;len+=d(cities[x],cities[y])}
+  function hd(k){return '<th class="'+(k===cur&&!done?'cur':route.indexOf(k)>-1?'vis':'')+'">'+(k+1)+'</th>'}
+  var h='<table><tr><th></th>';cities.forEach(function(c,k){h+=hd(k)});h+='</tr>';
+  cities.forEach(function(a,r){h+='<tr>'+hd(r);
+    cities.forEach(function(b,c){var v=Math.round(d(a,b));
+      if(r===c)h+='<td>-</td>';
+      else if(used[r+'-'+c])h+='<td class="used">'+v+'<sup>'+used[r+'-'+c]+'</sup></td>';
+      else if(!done&&r===cur&&route.indexOf(c)<0)h+='<td class="go" data-j="'+c+'">'+v+'</td>';
+      else h+='<td>'+v+'</td>'});
+    h+='</tr>'});
+  document.getElementById('tbl').innerHTML=h+'</table>';
+  document.getElementById('tstat').innerHTML=(done?t('fin',0,Math.round(len)):t('here',nm(cities[cur]),Math.round(len)))+'<br>'+t('path')+' '+route.map(function(k){return k+1}).join(' → ')+(done?' → 1':'')}
+function stars(n){return '★★★'.slice(0,n)+'☆☆☆'.slice(0,3-n)}
+function prog(){var h='';levels.forEach(function(n,i){h+='<span class="seg'+(scores[i]?' done':'')+(i===level?' cur':'')+'" title="'+n+' '+t('cities')+'">'+(i+1)+'<small>'+(scores[i]?stars(scores[i].stars):'')+'</small></span>'});document.getElementById('prog').innerHTML=h}
+function tip(){}
+function bestName(){return t('exact')}
+function nextLabel(){nextB.textContent=t(level<levels.length-1?'next':'seeSum')}
+function renderSummary(){
+  var tot=0,max=levels.length*3,h='<table><tr><th>'+t('lvl')+'</th><th>'+t('cities')+'</th><th>'+t('stars')+'</th><th>'+t('dist')+'</th><th>'+t('bestc')+'</th></tr>';
+  levels.forEach(function(n,i){var r=scores[i];
+    if(r){tot+=r.stars;h+='<tr><td>'+(i+1)+'</td><td>'+n+'</td><td class="st">'+stars(r.stars)+'</td><td>'+r.mine+'</td><td>'+r.best+'</td></tr>'}
+    else h+='<tr><td>'+(i+1)+'</td><td>'+n+'</td><td>-</td><td>-</td><td>-</td></tr>'});
+  var f=tot/max;
+  document.getElementById('sumBody').innerHTML='<div class="stars">★ '+tot+' / '+max+'</div><p><b>'+t('sumTxt',tot,max)+'</b><br>'+t(f>=.85?'sr1':f>=.55?'sr2':'sr3')+'</p><div style="overflow-x:auto">'+h+'</table></div>'}
+function show(id){['play','learn','summary'].forEach(function(x){document.getElementById(x).hidden=x!==id});
+  document.querySelectorAll('.bar > [data-tab]').forEach(function(b){b.classList.toggle('primary',b.dataset.tab===id)});
+  if(id==='play')setTimeout(function(){if(fit()){snap=true;render()}},30);window.scrollTo(0,0)}
+
+/* ---------- game flow ---------- */
+function start(){var n=levels[level];
+  cities=gen(n);document.getElementById('scene').innerHTML=buildScene(cities);
+  route=[0];done=false;hint=null;best=solve();stats();tipN=Math.floor(Math.random()*5);tip();
+  nextB.hidden=true;snap=true;setMsg(function(){return t('start')});
+  fit();render()}
+function finish(){done=true;var tt=total(route),over=(tt/best-1)*100,st=tt<=best?3:over<10?2:1,s='';
+  for(var i=0;i<3;i++)s+=i<st?'★':'☆';
+  var prev=scores[level];if(!prev||prev.stars<=st)scores[level]={stars:st,mine:Math.round(tt),best:Math.round(best)};
+  setMsg(function(){return '<div class="stars">'+s+'</div>'+t(tt<=best?'p':over<10?'g':'n')+'<br>'+t('res',Math.round(tt),bestName(),Math.round(best),over<.05?'0':over.toFixed(1))},'result');
+  nextB.hidden=false;nextLabel();render()}
+function legMsg(){var n=route.length;if(n<2)return t('start');var fa=cities[route[n-2]],fb=cities[route[n-1]];return t('leg',n-1,nm(fa),nm(fb),Math.round(d(fa,fb)),n,cities.length,t(dm(fa,fb)<WALK?'walk':'drive'))}
+function move(i){if(done||route.indexOf(i)>-1)return;
+  var from=route[route.length-1];route.push(i);
+  if(route.length===cities.length)finish();
+  else{setMsg(legMsg);render()}}
+document.getElementById('tbl').addEventListener('click',function(e){var td=e.target.closest('td.go');if(td)move(+td.dataset.j)});
+document.getElementById('undo').onclick=function(){if(route.length>1){route.pop();done=false;nextB.hidden=true;setMsg(legMsg);render()}};
+document.getElementById('reset').onclick=function(){route=[0];done=false;hint=null;nextB.hidden=true;setMsg(function(){return t('cleared')});render()};
+document.getElementById('greedy').onclick=function(){
+  if(hint){hint=null;render();setMsg(function(){return ''});return}
+  hint=greedy();render();var g=total(hint),pth=hint.map(function(k){return k+1}).join(' → ')+' → 1';
+  setMsg(function(){return t('gm',Math.round(g),((g/best-1)*100).toFixed(1),bestName(),Math.round(best),pth)})};
+document.getElementById('newmap').onclick=start;
+document.getElementById('restart').onclick=function(){level=0;scores=[];start()};
+nextB.onclick=function(){if(level<levels.length-1){level++;start()}else{renderSummary();show('summary')}};
+document.getElementById('sumAgain').onclick=function(){level=0;scores=[];start();show('play')};
+
+/* ---------- language, theme, settings ---------- */
+function setLang(l){lang=l;try{localStorage.setItem('tsp-lang',l)}catch(e){}
+  document.documentElement.lang=l;
+  document.querySelectorAll('[data-t]').forEach(function(el){el.textContent=t(el.dataset.t)});
+  document.querySelectorAll('[data-l]').forEach(function(b){b.classList.toggle('on',b.dataset.l===l)});
+  nextLabel();msg.innerHTML=msgFn();renderSummary();tip();render()}
+document.querySelectorAll('[data-l]').forEach(function(b){b.onclick=function(){setLang(b.dataset.l)}});
+function setTheme(th){document.documentElement.setAttribute('data-theme',th);try{localStorage.setItem('tsp-theme',th)}catch(e){}
+  document.querySelectorAll('[data-th]').forEach(function(b){b.classList.toggle('on',b.dataset.th===th)})}
+document.querySelectorAll('[data-th]').forEach(function(b){b.onclick=function(){setTheme(b.dataset.th)}});
+document.querySelectorAll('[data-tab]').forEach(function(b){b.onclick=function(){show(b.dataset.tab)}});
+function openSet(){document.getElementById('settings').hidden=false}
+function closeSet(){document.getElementById('settings').hidden=true}
+document.getElementById('setBtn').onclick=openSet;
+document.getElementById('setClose').onclick=closeSet;
+document.getElementById('settings').addEventListener('click',function(e){if(e.target===this)closeSet()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSet()});
+document.getElementById('map').addEventListener('click',function(e){var g=e.target.closest&&e.target.closest('.city');if(g)move(+g.getAttribute('data-i'))});
+window.addEventListener('resize',function(){if(fit()){snap=true;render()}});
+
+document.querySelectorAll('[data-df]').forEach(function(b){b.onclick=function(){diff=b.dataset.df;try{localStorage.setItem('tsp-diff',diff)}catch(e){}markDiff()}});
+document.getElementById('go').onclick=function(){level=0;scores=[];document.getElementById('setup').hidden=true;document.getElementById('game').hidden=false;start()};
+document.getElementById('chg').onclick=function(){document.getElementById('game').hidden=true;document.getElementById('setup').hidden=false};
+initMap();start();setLang(lang);markDiff();setTheme(document.documentElement.getAttribute('data-theme')||'light');
+})();</script>
+</body>
+</html>
